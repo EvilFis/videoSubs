@@ -1,0 +1,8 @@
+/venv
+/audio/*
+/video/*
+/subs/
+/models/
+/json/
+
+.env
