@@ -1,8 +1,5 @@
-/venv
-/audio/*
-/video/*
-/subs/
-/models/
-/json/
+/venv/
+/audio/*.wav
+/video/*.mp4
 
 .env

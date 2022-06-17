@@ -3,7 +3,6 @@ from pydub import AudioSegment
 from pydub.silence import detect_nonsilent
 
 import speech_recognition as sr
-import asyncio
 import ffmpy3
 import json
 import os
@@ -14,6 +13,7 @@ def append_zero_time(time: float|int) -> str:
         time = f'0{time}'
 
     return str(time)
+
 
 def time_filter(time: float|int) -> str:
     hours = int(time // 3600)
@@ -51,7 +51,7 @@ def save_json(name:str, text:dict):
         json.dump(text, f)
 
 
-async def detect_speech(file: str): 
+def detect_speech(file: str): 
     song = AudioSegment.from_wav(file)
     
     timestamp_list = detect_nonsilent(song, 500, song.dBFS*1.3, 1)
@@ -95,16 +95,15 @@ def audio_to_text_google(path: str, offset_start: float|None=None, offset_end: f
         pass
 
 
-async def main():
+def main():
 
     clear_folders(audio_path)
     clear_folders(os.getenv("SUBS_PATH"))
-    print("[#] Получаем список файлов...")
+    clear_folders(os.getenv("JSON_PATH"))
+
     video_list = [file for file in os.listdir(video_path) if file.endswith(".mp4")]
     
-    print("[#] Преобразуем в .wav")
     for video in video_list:
-        print(video)
         ff = ffmpy3.FFmpeg (
             executable=os.getenv("FFMPEG_PATH"),
             inputs={f'{video_path}{video}': None},
@@ -113,23 +112,18 @@ async def main():
 
         ff.run()
 
-        data = await detect_speech(f'{audio_path}{video.rsplit(".",1)[0]}.wav')
+        data = detect_speech(f'{audio_path}{video.rsplit(".",1)[0]}.wav')
         save_json(f'{video.rsplit(".",1)[0]}', data)
         save_subs(f'{video.rsplit(".",1)[0]}', data)
     
 
 if __name__ == "__main__":
     try:
-        print("[#] Запуск")
-
         load_dotenv()
 
         video_path = os.getenv("VIDEO_PATH")
         audio_path = os.getenv("AUDIO_PATH")
+        main()
 
-        loop = asyncio.get_event_loop()
-        loop.run_until_complete(main())
-        loop.close()
-        
     except (KeyboardInterrupt, SystemExit):
         print("[#] Произошла не предвиненная ошибка")
