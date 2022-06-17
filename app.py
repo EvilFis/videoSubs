@@ -17,7 +17,7 @@ def append_zero_time(time: float|int) -> str:
 
 def time_filter(time: float|int) -> str:
     hours = int(time // 3600)
-    minute = int(time // 60)
+    minute = int(time // 60 % 60)
     seconds = int(time % 60)
     microseconds = str(round(time % 60 % 1, 3)).replace("0.", "")
     microseconds += '0' if len(microseconds) < 3 else ''
@@ -76,7 +76,7 @@ def detect_speech(file: str):
     return text
 
 
-def audio_to_text_google(path: str, offset_start: float|None=None, offset_end: float|None=0,  language:str = 'en-US'):
+def audio_to_text_google(path: str, offset_start: float|None=None, offset_end: float|None=0,  language:str = 'en-US') -> str:
     recog = sr.Recognizer()
 
     duration = offset_end - offset_start if offset_end else None
@@ -86,7 +86,6 @@ def audio_to_text_google(path: str, offset_start: float|None=None, offset_end: f
     try:
 
         with sr.AudioFile(path) as audio_file:
-            # recog.adjust_for_ambient_noise(audio_file)
             audio_content = recog.record(audio_file, offset=offset_start, duration=duration)
 
         return recog.recognize_google(audio_content, language=language)
@@ -124,6 +123,6 @@ if __name__ == "__main__":
         video_path = os.getenv("VIDEO_PATH")
         audio_path = os.getenv("AUDIO_PATH")
         main()
-
+        
     except (KeyboardInterrupt, SystemExit):
         print("[#] Произошла не предвиненная ошибка")
