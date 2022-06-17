@@ -1,5 +1,6 @@
-from app import append_zero_time, time_filter
+from app import *
 import unittest
+import json
 
 # python -m unittest -v file.py
 
@@ -60,8 +61,22 @@ class TestApp(unittest.TestCase):
             self.assertEqual(time_filter(data["data_float"][i]), data["res_float"][i])
 
 
-    
+    def test_audio_to_text_google(self):
 
+        path='./test/src/audio.wav'
+        offset_start = [0.660, 230.71]
+        offset_end = [2.460, None]
+        result=["hi this is Mark", "okay great job I'll see you next time take it easy by"] 
+
+        if len(offset_start) != len(offset_end):
+            raise RuntimeError("The length of the input data does not match the output data")
+
+        for i in range(len(offset_start)):
+            self.assertEqual(audio_to_text_google(
+                path=path,
+                offset_start=offset_start[i],
+                offset_end=offset_end[i]
+            ), result[i])
 
 
 if __name__ == "__main__":

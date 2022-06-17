@@ -51,7 +51,11 @@ def save_json(name:str, text:dict):
         json.dump(text, f)
 
 
-def detect_speech(file: str): 
+def detect_speech(file: str) -> dict:
+
+    if not isinstance(file, str):
+        raise ValueError("FILE must be passed a string value")
+
     song = AudioSegment.from_wav(file)
     
     timestamp_list = detect_nonsilent(song, 500, song.dBFS*1.3, 1)
@@ -76,7 +80,10 @@ def detect_speech(file: str):
     return text
 
 
-def audio_to_text_google(path: str, offset_start: float|None=None, offset_end: float|None=0,  language:str = 'en-US') -> str:
+def audio_to_text_google(path: str, offset_start: float|None=0, offset_end: float|None=None,  language:str='en-US') -> str:
+    if not isinstance(path, str):
+        raise ValueError("The first parameter must be passed a string value")
+    
     recog = sr.Recognizer()
 
     duration = offset_end - offset_start if offset_end else None
@@ -84,12 +91,10 @@ def audio_to_text_google(path: str, offset_start: float|None=None, offset_end: f
     if isinstance(duration, float|int) and duration < 1:
         duration = 1
     try:
-
         with sr.AudioFile(path) as audio_file:
             audio_content = recog.record(audio_file, offset=offset_start, duration=duration)
 
         return recog.recognize_google(audio_content, language=language)
-
     except:
         pass
 
@@ -123,6 +128,6 @@ if __name__ == "__main__":
         video_path = os.getenv("VIDEO_PATH")
         audio_path = os.getenv("AUDIO_PATH")
         main()
-        
+
     except (KeyboardInterrupt, SystemExit):
         print("[#] Произошла не предвиненная ошибка")
