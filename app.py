@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 from pydub import AudioSegment
+from googletrans import Translator
 from pydub.silence import detect_nonsilent
 
 import speech_recognition as sr
@@ -80,7 +81,20 @@ def detect_speech(file: str) -> dict:
     return text
 
 
-def audio_to_text_google(path: str, offset_start: float|None=0, offset_end: float|None=None,  language:str='en-US') -> str:
+def translate_text(text_t:str) -> str:
+    if not isinstance(text_t, str):
+        raise ValueError("The first parameter must be passed a string value")
+    
+    result = Translator().translate(text_t, src="en", dest="ru")
+
+    return result.text
+
+
+def audio_to_text_google(path: str, 
+                        offset_start: float|None=0, 
+                        offset_end: float|None=None,  
+                        language:str='en-US', 
+                        translate:bool=False) -> str:
     if not isinstance(path, str):
         raise ValueError("The first parameter must be passed a string value")
     
@@ -93,6 +107,9 @@ def audio_to_text_google(path: str, offset_start: float|None=0, offset_end: floa
     try:
         with sr.AudioFile(path) as audio_file:
             audio_content = recog.record(audio_file, offset=offset_start, duration=duration)
+
+        if language == "en-US" and translate:
+            return translate_text(recog.recognize_google(audio_content, language=language))
 
         return recog.recognize_google(audio_content, language=language)
     except:
